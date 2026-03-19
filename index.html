@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Question</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+  }
+  .card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  h1 { font-size: 2rem; color: #333; margin-bottom: 32px; }
+  .buttons { display: flex; gap: 16px; justify-content: center; }
+  .btn {
+    padding: 14px 44px;
+    border-radius: 30px;
+    border: none;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .yes-btn {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: #1a5c3a;
+    box-shadow: 0 4px 15px rgba(67,233,123,0.4);
+  }
+  .yes-btn:hover { transform: scale(1.07); }
+  .no-btn {
+    background: linear-gradient(135deg, #f5576c, #ff6a88);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245,87,108,0.4);
+    position: relative;
+    z-index: 10;
+  }
+  .no-btn.runaway {
+    position: fixed;
+    transition: none;
+  }
+  .happy-screen { display: none; flex-direction: column; align-items: center; gap: 16px; }
+  .happy-screen img {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  .happy-screen h2 { font-size: 1.5rem; color: #333; }
+  .happy-screen p { color: #666; }
+  .reset-btn {
+    margin-top: 8px;
+    padding: 10px 28px;
+    border-radius: 30px;
+    border: 2px solid #764ba2;
+    background: white;
+    color: #764ba2;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .reset-btn:hover { background: #f3eaff; }
+  .confetti {
+    position: fixed;
+    top: -10px;
+    border-radius: 2px;
+    animation: fall linear forwards;
+    pointer-events: none;
+    z-index: 999;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div id="quiz">
+    <h1>Do you like me? 🥺</h1>
+    <div class="buttons">
+      <button class="btn yes-btn" onclick="showHappy()">Yes 💖</button>
+      <button class="btn no-btn" id="noBtn" onclick="noClick()">No</button>
+    </div>
+  </div>
+
+  <div class="happy-screen" id="happyScreen">
+    <h2>YAAAY! 🥳💖</h2>
+    <img src="kitten.jpg" alt="Happy kitten!">
+    <p>That's us! 💖</p>
+    <button class="reset-btn" onclick="reset()">Again!</button>
+  </div>
+</div>
+
+<script>
+  const noBtn = document.getElementById('noBtn');
+  const phrases = [
+    "Nope! 😜","Wrong answer!","Try again!","You sure? 🤔",
+    "Hehe! 🏃💨","Can't click me!","Think again!","Be honest! 😤",
+    "Over here~","Nuh uh!","Really??","Pick Yes! 💖",
+    "Too slow!","Missed me!","Not today!","Catch me!"
+  ];
+
+  function noClick() {
+    noBtn.classList.add('runaway');
+    move();
+    // After first click, all future taps/hovers just move it
+    noBtn.onclick = function(e) { e.preventDefault(); move(); };
+    noBtn.onmouseenter = move;
+  }
+
+  function move() {
+    const pad = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - pad;
+    const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+    noBtn.style.left = (pad + Math.random() * maxX) + 'px';
+    noBtn.style.top = (pad + Math.random() * maxY) + 'px';
+    noBtn.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+  }
+
+  function showHappy() {
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('happyScreen').style.display = 'flex';
+    noBtn.classList.remove('runaway');
+    noBtn.style.left = ''; noBtn.style.top = '';
+    // Confetti
+    const colors = ['#667eea','#764ba2','#f093fb','#f5576c','#4facfe','#43e97b','#fa709a','#fee140'];
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+        c.style.width = (6 + Math.random() * 8) + 'px';
+        c.style.height = (6 + Math.random() * 8) + 'px';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }, i * 30);
+    }
+  }
+
+  function reset() {
+    document.getElementById('quiz').style.display = '';
+    document.getElementById('happyScreen').style.display = 'none';
+    noBtn.textContent = 'No';
+    noBtn.onclick = noClick;
+    noBtn.onmouseenter = null;
+  }
+</script>
+
+</body>
+</html>
